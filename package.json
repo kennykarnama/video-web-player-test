@@ -9,7 +9,7 @@
   "bin": {
     "player-test": "./bin/index.js"
   },
-  "author": "kenny@ruangguru.com",
+  "author": "kennykarnama@gmail.com",
   "license": "MIT",
   "dependencies": {
     "chalk": "^3.0.0",
