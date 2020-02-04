@@ -6,13 +6,16 @@ const util = require('util');
 const chalk = require('chalk');
 const yargs = require("yargs");
 const makeDir = require('make-dir');
+const ShakaPlayer = "shaka-player"
 
 const options = yargs
  .usage("Usage: -n <name>")
  .option("h", { alias: "host", describe: "target host", type: "string", demandOption: true })
- .option("b", { alias: "bin", describe: "executable chrome path", type: "string", demandOption: true })
- .option("o", { alias: "outputdir", describe: "screenshot output dir", type: "string", demandOption: true })
- .option("e", { alias: "element", describe: "video outlay to be inspected", type: "string", demandOption: true })
+ .option("chrome-bin", { alias: "bin", describe: "executable chrome path", type: "string", demandOption: true })
+ .option("png-output-dir", { alias: "outputdir", describe: "screenshot output dir", type: "string", demandOption: true })
+ .option("element-inspect", { alias: "element", describe: "video outlay to be inspected", type: "string", demandOption: true })
+ .option("enable-headless", { alias: "headless", describe: "enable headless", type: "boolean", demandOption: true })
+ .option("player-observed", { alias: "player", describe: "player to be observed, [shaka-player or anything]", type: "string", demandOption: true })
  .argv;
 
 
@@ -23,7 +26,7 @@ const options = yargs
           const {x, y, width, height} = element.getBoundingClientRect();
           return {left: x, top: y, width, height, id: element.id};
         }, selector);
-      
+        
         return await page.screenshot({
           path: filename,
           clip: {
@@ -32,17 +35,21 @@ const options = yargs
             width: rect.width + padding * 2,
             height: rect.height + padding * 2
           }
+        }).catch( (e) => {
+          console.log('error')
         }).then( () => {
             console.log(chalk.green("Write screenshot ",filename))
         });
       }
   makeDir(options.outputdir)
   let fileCounter = 1;
-  const browser = await puppeteer.launch({headless:true, executablePath: options.bin});
+  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin});
   const page = await browser.newPage();
-  page.on('console', msg => {
+  page.waitForSelector(options.element)
+  .then(() => {
+    page.on('console', msg => {
       let logMessage = msg.text()
-      if (logMessage == VideoLoaded) {
+      if (logMessage == VideoLoaded || options.player != ShakaPlayer) {
         console.log("PAGE LOG ", msg.text())
         console.log(chalk.blueBright("Start spawn screenshot..."))
          setInterval(()=>{
@@ -53,6 +60,8 @@ const options = yargs
       }
     
   })
+  });
+  
   await page.goto(options.host);
 
 })();
