@@ -1,0 +1,20 @@
+{
+  "name": "video-web-player-test",
+  "version": "1.0.0",
+  "description": "screenshot and capture log output of headless browser test video",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "player-test": "./bin/index.js"
+  },
+  "author": "kenny@ruangguru.com",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "make-dir": "^3.0.0",
+    "puppeteer": "^2.1.0",
+    "yargs": "^15.1.0"
+  }
+}
