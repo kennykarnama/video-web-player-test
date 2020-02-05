@@ -43,10 +43,10 @@ const options = yargs
       }
   makeDir(options.outputdir)
   let fileCounter = 1;
-  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox']});
+  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox', '--disable-dev-shm-usage']});
   const page = await browser.newPage();
   console.log('hai')
-  page.waitForSelector(options.element)
+  page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
     page.on('console', msg => {
       let logMessage = msg.text()
