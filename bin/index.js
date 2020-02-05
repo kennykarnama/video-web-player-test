@@ -43,7 +43,7 @@ const options = yargs
       }
   makeDir(options.outputdir)
   let fileCounter = 1;
-  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin});
+  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox']});
   const page = await browser.newPage();
   page.waitForSelector(options.element)
   .then(() => {
