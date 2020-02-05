@@ -14,7 +14,7 @@
   "dependencies": {
     "chalk": "^3.0.0",
     "make-dir": "^3.0.0",
-    "puppeteer": "^2.1.0",
+    "puppeteer": "~1.19.0",
     "yargs": "^15.1.0"
   }
 }
