@@ -36,15 +36,16 @@ const options = yargs
             height: rect.height + padding * 2
           }
         }).catch( (e) => {
-          console.log('error')
+          console.log('error ', e)
         }).then( () => {
             console.log(chalk.green("Write screenshot ",filename))
         });
       }
   makeDir(options.outputdir)
   let fileCounter = 1;
-  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+  const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox']});
   const page = await browser.newPage();
+  console.log('hai')
   page.waitForSelector(options.element)
   .then(() => {
     page.on('console', msg => {
