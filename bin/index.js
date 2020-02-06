@@ -41,9 +41,6 @@ const options = yargs
   let fileCounter = 1;
   const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox', '--disable-dev-shm-usage']});
   const page = await browser.newPage();
-  //await page.setViewport({ width: 1366, height: 768});
-  console.log('hai')
-
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
     
