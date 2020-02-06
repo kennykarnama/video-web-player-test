@@ -43,10 +43,16 @@ const options = yargs
   const page = await browser.newPage();
   //await page.setViewport({ width: 1366, height: 768});
   console.log('hai')
+
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
+    
     page.on('console', msg => {
       let logMessage = msg.text()
+      console.log("PAGE LOG ", msg.text())
+      if (msg.text().includes("Error") || msg.text().includes("Failed")) {
+        process.exit(1);
+      }  
       if (logMessage == VideoLoaded || options.player != ShakaPlayer) {
         console.log("PAGE LOG ", msg.text())
         console.log(chalk.blueBright("Start spawn screenshot..."))
@@ -62,6 +68,11 @@ const options = yargs
       }
     
   })
+
+  page.on('error', msg => {
+    console.log("PAGE ERROR ", msg.text());
+  })
+
   });
   
   await page.goto(options.host).catch((e) => {
