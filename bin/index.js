@@ -64,6 +64,9 @@ const options = yargs
   })
   });
   
-  await page.goto(options.host);
+  await page.goto(options.host).catch((e) => {
+    console.log("error ", e);
+    process.exit(1);
+  });
 
 })();
