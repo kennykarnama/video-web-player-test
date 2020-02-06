@@ -16,6 +16,7 @@ const options = yargs
  .option("element-inspect", { alias: "element", describe: "video outlay to be inspected", type: "string", demandOption: true })
  .option("enable-headless", { alias: "headless", describe: "enable headless", type: "boolean", demandOption: true })
  .option("player-observed", { alias: "player", describe: "player to be observed, [shaka-player or anything]", type: "string", demandOption: true })
+ .option("record-duration", { alias: "recordDuration", describe: "records duration in seconds", type: "integer", demandOption: true })
  .argv;
 
 
@@ -26,15 +27,10 @@ const options = yargs
           const {x, y, width, height} = element.getBoundingClientRect();
           return {left: x, top: y, width, height, id: element.id};
         }, selector);
-        
         return await page.screenshot({
           path: filename,
-          clip: {
-            x: rect.left - padding,
-            y: rect.top - padding,
-            width: rect.width + padding * 2,
-            height: rect.height + padding * 2
-          }
+          omitBackground: true,
+          fullPage: true
         }).catch( (e) => {
           console.log('error ', e)
         }).then( () => {
@@ -45,6 +41,7 @@ const options = yargs
   let fileCounter = 1;
   const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox', '--disable-dev-shm-usage']});
   const page = await browser.newPage();
+  //await page.setViewport({ width: 1366, height: 768});
   console.log('hai')
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
@@ -55,8 +52,12 @@ const options = yargs
         console.log(chalk.blueBright("Start spawn screenshot..."))
          setInterval(()=>{
              let filename = util.format("%s/screenshot_%s.png", options.outputdir,fileCounter)
-             screenshotDOMElement(options.element, 0, filename)
-             fileCounter++;
+             screenshotDOMElement(options.element, 0, filename).then( () => {
+                fileCounter++;
+                if (fileCounter > options.recordDuration) {
+                  process.exit(0);
+                }
+             });
          }, 1000)      
       }
     
