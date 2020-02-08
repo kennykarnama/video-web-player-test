@@ -1,6 +1,6 @@
 {
   "name": "video-web-player-test",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "screenshot and capture log output of headless browser test video",
   "main": "index.js",
   "scripts": {
