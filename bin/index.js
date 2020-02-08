@@ -53,14 +53,13 @@ const options = yargs
   const page = await browser.newPage();
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
-    
+    recordTimeout()
     page.on('console', msg => {
       let logMessage = msg.text()
       console.log("PAGE LOG ", msg.text()) 
       if (logMessage == VideoLoaded || options.player != ShakaPlayer) {
         console.log("PAGE LOG ", msg.text())
         console.log(chalk.blueBright("Start spawn screenshot..."))
-        recordTimeout()
          setInterval(()=>{
              let filename = util.format("%s/screenshot_%s.png", options.outputdir,(fileCounter));
              screenshotDOMElement(options.element, 0, filename).then( () => {
