@@ -6,7 +6,8 @@ const util = require('util');
 const chalk = require('chalk');
 const yargs = require("yargs");
 const makeDir = require('make-dir');
-const ShakaPlayer = "shaka-player"
+const ShakaPlayer = "shaka-player";
+const sleep = require('util').promisify(setTimeout);
 
 const options = yargs
  .usage("Usage: -n <name>")
@@ -43,31 +44,26 @@ const options = yargs
   const page = await browser.newPage();
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
+
+    (async () => {
+      console.time("Record duration")
+      await sleep(options.recordDuration)
+      process.exit(0);
+      
+  })()
     
     page.on('console', msg => {
       let logMessage = msg.text()
-      console.log("PAGE LOG ", msg.text())
-      if (msg.text().includes("Error") || msg.text().includes("Failed")) {
-        process.exit(1);
-      }  
+      console.log("PAGE LOG ", msg.text()) 
       if (logMessage == VideoLoaded || options.player != ShakaPlayer) {
         console.log("PAGE LOG ", msg.text())
-        console.log(chalk.blueBright("Start spawn screenshot..."))
-         setInterval(()=>{
-             let filename = util.format("%s/screenshot_%s.png", options.outputdir,fileCounter)
-             screenshotDOMElement(options.element, 0, filename).then( () => {
-                fileCounter++;
-                if (fileCounter > options.recordDuration) {
-                  process.exit(0);
-                }
-             });
-         }, 1000)      
+        console.log(chalk.blueBright("Start spawn screenshot..."));
+        let filename = util.format("%s/screenshot_%s.png", options.outputdir,(fileCounter));
+            screenshotDOMElement(options.element, 0, filename).then( () => {
+            fileCounter++;
+        });    
       }
     
-  })
-
-  page.on('error', msg => {
-    console.log("PAGE ERROR ", msg.text());
   })
 
   });
