@@ -17,7 +17,8 @@ const options = yargs
  .option("element-inspect", { alias: "element", describe: "video outlay to be inspected", type: "string", demandOption: true })
  .option("enable-headless", { alias: "headless", describe: "enable headless", type: "boolean", demandOption: true })
  .option("player-observed", { alias: "player", describe: "player to be observed, [shaka-player or anything]", type: "string", demandOption: true })
- .option("record-duration", { alias: "recordDuration", describe: "records duration in seconds", type: "integer", demandOption: true })
+ .option("record-duration", { alias: "recordDuration", describe: "records duration in ms", type: "integer", demandOption: true })
+ .option("capture-interval", { alias: "captureInterval", describe: "capture interval in ms", type: "integer", demandOption: true })
  .argv;
 
 
@@ -38,30 +39,34 @@ const options = yargs
             console.log(chalk.green("Write screenshot ",filename))
         });
       }
+
+  async function recordTimeout () {
+        console.time("Record duration")
+        await sleep(options.recordDuration)
+        console.timeEnd("Record duration ended")
+        process.exit(0);
+        
+  }
   makeDir(options.outputdir)
   let fileCounter = 1;
   const browser = await puppeteer.launch({headless:options.headless, executablePath: options.bin, args: ['--no-sandbox', '--disable-dev-shm-usage']});
   const page = await browser.newPage();
   page.waitForSelector(options.element, {timeout: 8000})
   .then(() => {
-
-    (async () => {
-      console.time("Record duration")
-      await sleep(options.recordDuration)
-      process.exit(0);
-      
-  })()
     
     page.on('console', msg => {
       let logMessage = msg.text()
       console.log("PAGE LOG ", msg.text()) 
       if (logMessage == VideoLoaded || options.player != ShakaPlayer) {
         console.log("PAGE LOG ", msg.text())
-        console.log(chalk.blueBright("Start spawn screenshot..."));
-        let filename = util.format("%s/screenshot_%s.png", options.outputdir,(fileCounter));
-            screenshotDOMElement(options.element, 0, filename).then( () => {
-            fileCounter++;
-        });    
+        console.log(chalk.blueBright("Start spawn screenshot..."))
+        recordTimeout()
+         setInterval(()=>{
+             let filename = util.format("%s/screenshot_%s.png", options.outputdir,(fileCounter));
+             screenshotDOMElement(options.element, 0, filename).then( () => {
+                fileCounter++;
+             });
+         }, options.captureInterval)      
       }
     
   })
